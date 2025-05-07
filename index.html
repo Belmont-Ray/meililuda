@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>独立面中心轴旋转</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #222;
+            font-family: Arial, sans-serif;
+            perspective: 1500px;
+            overflow: hidden;
+        }
+        
+        .scene {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            transform-style: preserve-3d;
+            transform: rotateX(-45deg);
+        }
+        
+        .face-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transform-origin: center center -100px;
+        }
+        
+        .face {
+            position: absolute;
+            width: 200px;
+            height: 300px;
+            background-size: cover;
+            background-position: center;
+            border: 4px solid rgba(255,255,255,0.8);
+            box-shadow: 0 0 25px rgba(0,0,0,0.8);
+            opacity: 1;
+            cursor: pointer;
+            transform-origin: center center;
+            backface-visibility: visible;
+        }
+        
+        /* 前面 */
+        .front {
+            transform: translateZ(250px);
+            background-image: url('图片1.jpg');
+        }
+        
+        /* 右面 */
+        .right {
+            transform: rotateY(90deg) translateZ(250px);
+            background-image: url('图片2.jpg');
+        }
+        
+        /* 后面 */
+        .back {
+            transform: rotateY(180deg) translateZ(250px);
+            background-image: url('图片3.jpg');
+        }
+        
+        /* 左面 */
+        .left {
+            transform: rotateY(-90deg) translateZ(250px);
+            background-image: url('图片4.jpg');
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            background: rgba(0,0,0,0.7);
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            text-align: center;
+            width: 80%;
+            max-width: 400px;
+        }
+        
+        .state-indicator {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            background: rgba(0,0,0,0.7);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        @keyframes rotateClockwise {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+        
+        @keyframes rotateCounterClockwise {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(-360deg); }
+        }
+        
+        .clockwise {
+            animation: rotateClockwise 8s linear infinite;
+        }
+        
+        .counter-clockwise {
+            animation: rotateCounterClockwise 8s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="scene">
+        <div class="face-container" id="faceContainer">
+            <div class="face front"></div>
+            <div class="face right"></div>
+            <div class="face back"></div>
+            <div class="face left"></div>
+        </div>
+        <div class="state-indicator" id="stateIndicator">当前状态: 停止</div>
+    </div>
+    <div class="controls">点击任意图片切换旋转方向 (顺时针 → 逆时针 → 停止)</div>
+
+    <script>
+        const faceContainer = document.getElementById('faceContainer');
+        const stateIndicator = document.getElementById('stateIndicator');
+        let rotationState = 0; // 0: 停止, 1: 顺时针, 2: 逆时针
+        
+        // 设置中心轴旋转
+        function setupCenterAxisRotation() {
+            // 计算容器中心点
+            const containerHeight = 300; // 与.face高度一致
+            faceContainer.style.transformOrigin = `center ${containerHeight/2}px -100px`;
+        }
+        
+        // 为所有面添加点击事件
+        document.querySelectorAll('.face').forEach(face => {
+            face.addEventListener('click', toggleRotation);
+        });
+        
+        function toggleRotation() {
+            // 移除所有动画类
+            faceContainer.classList.remove('clockwise', 'counter-clockwise');
+            
+            // 切换状态
+            rotationState = (rotationState + 1) % 3;
+            
+            // 根据状态添加相应的动画类
+            if (rotationState === 1) {
+                faceContainer.classList.add('clockwise');
+                stateIndicator.textContent = "当前状态: 顺时针旋转";
+            } else if (rotationState === 2) {
+                faceContainer.classList.add('counter-clockwise');
+                stateIndicator.textContent = "当前状态: 逆时针旋转";
+            } else {
+                stateIndicator.textContent = "当前状态: 停止";
+            }
+        }
+        
+        // 初始化设置
+        setupCenterAxisRotation();
+    </script>
+</body>
+</html>
